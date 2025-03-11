@@ -35,31 +35,41 @@ app.options('*', (req, res) => {
 
 // أضف هذا المسار للصفحة الرئيسية
 app.get('/', (req, res) => {
-    res.send("Hello From Joo");
+    try {
+        res.send("Hello From Joo");
+    }
+    catch {
+        console.log("there is an error from get");
+    }
 });
 
 // راوت لتسجيل المستخدم
 app.post('/login', (req, res) => {
-const { username, password } = req.body;
+    const { username, password } = req.body;
 
-if (!username || !password) {
-    return res.status(400).json({ error: 'يجب إدخال اسم المستخدم وكلمة المرور' });
-}
-
-  // إدخال البيانات في قاعدة البيانات
-db.run(
-    'INSERT INTO users (username, password) VALUES (?, ?)',
-    [username, password],
-    function (err) {
-        if (err) {
-            if (err.code === 'SQLITE_CONSTRAINT') {
-                return res.status(409).json({ error: 'اسم المستخدم موجود مسبقاً' });
-            }
-            return res.status(500).json({ error: 'خطأ في السيرفر' });
+    try {
+        if (!username || !password) {
+            return res.status(400).json({ error: 'يجب إدخال اسم المستخدم وكلمة المرور' });
         }
-        return res.status(201).json({ message: 'تم تسجيل المستخدم بنجاح' });
+
+        // إدخال البيانات في قاعدة البيانات
+        db.run(
+            'INSERT INTO users (username, password) VALUES (?, ?)',
+            [username, password],
+            function (err) {
+                if (err) {
+                    if (err.code === 'SQLITE_CONSTRAINT') {
+                        return res.status(409).json({ error: 'اسم المستخدم موجود مسبقاً' });
+                    }
+                    return res.status(500).json({ error: 'خطأ في السيرفر' });
+                }
+                return res.status(201).json({ message: 'تم تسجيل المستخدم بنجاح' });
+            }
+        );
     }
-);
+    catch {
+        console.log("there is an error from post");
+    }
 });
 
 app.listen(port, () => {
